@@ -85,6 +85,10 @@ fabric-network/*.db
 fabric-network/*.tar
 fabric-network/*.zip
 
+# Ignore fabric-samples clones that may be created inside subfolders (for example test-network)
+fabric-network/**/fabric-samples/
+test-network/fabric-samples/
+
 # Generated crypto / artifacts used by test-network
 **/organizations/
 **/channel-artifacts/
