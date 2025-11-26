@@ -1,3 +1,112 @@
+# .gitignore for the unitap repository
+# Purpose: ignore build artifacts, IDE files, OS files, and generated Fabric binaries/crypto
+
+### OS
+.DS_Store
+Thumbs.db
+
+### IDEs / Editors
+.vscode/
+.idea/
+*.iml
+*.log
+
+### Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+### Dart / Flutter
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-settings
+pubspec.lock
+build/
+/.flutter-plugins
+
+### Android
+**/local.properties
+**/.gradle/
+**/build/
+android/.gradle/
+android/**/build/
+android/app/debug.keystore
+
+### iOS / macOS
+ios/Pods/
+ios/Runner.xcworkspace/
+Pods/
+DerivedData/
+*.xcworkspace
+*.xcuserstate
+*.xcuserdatad
+*.mode1v3
+*.mode2v3
+*.pbxuser
+
+### Windows
+windows/flutter/ephemeral/
+windows/**/build/
+
+### macOS Flutter desktop
+macos/Flutter/ephemeral/
+macos/**/build/
+
+### Flutter build outputs
+**/build/
+
+### Coverage, reports, temp
+coverage/
+reports/
+*.tmp
+*.cache
+
+### Secrets and environment
+.env
+.env.*
+secrets/
+*.key
+*.pem
+*.jks
+
+### Fabric / Hyperledger specific
+# Ignore downloaded/prebuilt Fabric binaries, tarballs and extracted folders
+fabric-network/bin/
+fabric-network/*.tar.gz
+fabric-network/hyperledger-*
+fabric-network/fabric-samples/
+fabric-network/organizations/
+fabric-network/channel-artifacts/
+fabric-network/system-genesis-block/
+fabric-network/*.log
+fabric-network/*.db
+fabric-network/*.tar
+fabric-network/*.zip
+
+# Generated crypto / artifacts used by test-network
+**/organizations/
+**/channel-artifacts/
+**/system-genesis-block/
+
+# Temporary docker / compose artifacts
+docker-compose.override.yml
+docker-compose.*.yml
+.env
+
+### Chaincode
+chaincode/**/node_modules/
+chaincode/**/dist/
+chaincode/**/package-lock.json
+
+### Misc
+*.bak
+*.swp
+*.swo
+~*
+
+# If you want to keep the Fabric binaries in the repo, remove the fabric-network/bin and related ignores above.
 # Miscellaneous
 *.class
 *.log
