@@ -62,6 +62,19 @@ CHANNEL_NAME=$2
 
 setGlobals $ORG
 
+# If running under Git Bash / MSYS, ensure ORDERER_CA is a Windows-style absolute path
+if uname | grep -i mingw > /dev/null 2>&1; then
+  if command -v cygpath > /dev/null 2>&1; then
+    ORDERER_CA=$(cygpath -w "$ORDERER_CA")
+    export ORDERER_CA
+  else
+    PWD_WIN=$(pwd -W)
+    # derive windows path for orderer ca as a fallback
+    ORDERER_CA="${PWD_WIN}\\organizations\\ordererOrganizations\\example.com\\tlsca\\tlsca.example.com-cert.pem"
+    export ORDERER_CA
+  fi
+fi
+
 createAnchorPeerUpdate 
 
 updateAnchorPeer 

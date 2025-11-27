@@ -26,13 +26,65 @@ fetchChannelConfig() {
 
   infoln "Fetching the most recent configuration block for the channel"
   set -x
-  peer channel fetch config ${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL --tls --cafile "$ORDERER_CA"
+  # Ensure paths passed to Windows-native binaries are Windows-style when running under MINGW
+  if uname | grep -i mingw > /dev/null 2>&1; then
+    if command -v cygpath > /dev/null 2>&1; then
+      ORDERER_CA_WIN=$(cygpath -w "$ORDERER_CA")
+      CONFIG_BLOCK_PB_WIN=$(cygpath -w "${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb")
+      CONFIG_BLOCK_JSON_WIN=$(cygpath -w "${TEST_NETWORK_HOME}/channel-artifacts/config_block.json")
+      OUTPUT_WIN=$(cygpath -w "${OUTPUT}")
+      # Ensure FABRIC_CFG_PATH is Windows-style so peer.exe resolves any relative paths correctly
+      if [ -n "$FABRIC_CFG_PATH" ]; then
+        FABRIC_CFG_PATH_WIN=$(cygpath -w "$FABRIC_CFG_PATH" 2>/dev/null || pwd -W)
+        export FABRIC_CFG_PATH="$FABRIC_CFG_PATH_WIN"
+      else
+        # default to repo-level config in Windows format
+        FABRIC_CFG_PATH_WIN=$(cygpath -w "${TEST_NETWORK_HOME}/../config" 2>/dev/null || echo "${PWD%/}/../config")
+        export FABRIC_CFG_PATH="$FABRIC_CFG_PATH_WIN"
+      fi
+      peer channel fetch config "$CONFIG_BLOCK_PB_WIN" -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL --tls --cafile "$ORDERER_CA_WIN"
+    else
+      # cygpath not available — build Windows-style paths from POSIX using pwd -W
+      PWD_WIN=$(pwd -W)
+      POSIX_PREFIX="$TEST_NETWORK_HOME"
+      WIN_PREFIX="$PWD_WIN"
+      ORDERER_CA_WIN="${ORDERER_CA/#$POSIX_PREFIX/$WIN_PREFIX}"
+      CONFIG_BLOCK_PB_WIN="${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb"
+      CONFIG_BLOCK_PB_WIN="${CONFIG_BLOCK_PB_WIN/#$POSIX_PREFIX/$WIN_PREFIX}"
+      CONFIG_BLOCK_JSON_WIN="${TEST_NETWORK_HOME}/channel-artifacts/config_block.json"
+      CONFIG_BLOCK_JSON_WIN="${CONFIG_BLOCK_JSON_WIN/#$POSIX_PREFIX/$WIN_PREFIX}"
+      OUTPUT_WIN="${OUTPUT/#$POSIX_PREFIX/$WIN_PREFIX}"
+      # Ensure FABRIC_CFG_PATH is Windows-style
+      if [ -n "$FABRIC_CFG_PATH" ]; then
+        FABRIC_CFG_PATH_WIN="${FABRIC_CFG_PATH/#$POSIX_PREFIX/$WIN_PREFIX}"
+        export FABRIC_CFG_PATH="$FABRIC_CFG_PATH_WIN"
+      else
+        FABRIC_CFG_PATH_WIN="${TEST_NETWORK_HOME}/../config"
+        FABRIC_CFG_PATH_WIN="${FABRIC_CFG_PATH_WIN/#$POSIX_PREFIX/$WIN_PREFIX}"
+        export FABRIC_CFG_PATH="$FABRIC_CFG_PATH_WIN"
+      fi
+      peer channel fetch config "$CONFIG_BLOCK_PB_WIN" -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL --tls --cafile "$ORDERER_CA_WIN"
+    fi
+  else
+    peer channel fetch config ${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL --tls --cafile "$ORDERER_CA"
+  fi
   { set +x; } 2>/dev/null
 
   infoln "Decoding config block to JSON and isolating config to ${OUTPUT}"
   set -x
-  configtxlator proto_decode --input ${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb --type common.Block --output ${TEST_NETWORK_HOME}/channel-artifacts/config_block.json
-  jq .data.data[0].payload.data.config ${TEST_NETWORK_HOME}/channel-artifacts/config_block.json >"${OUTPUT}"
+  if uname | grep -i mingw > /dev/null 2>&1; then
+    if command -v cygpath > /dev/null 2>&1; then
+      # Use Windows-style paths for configtxlator and jq if available
+      configtxlator proto_decode --input "${CONFIG_BLOCK_PB_WIN}" --type common.Block --output "${CONFIG_BLOCK_JSON_WIN}"
+      jq .data.data[0].payload.data.config "${CONFIG_BLOCK_JSON_WIN}" >"${OUTPUT_WIN}"
+    else
+      configtxlator proto_decode --input ${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb --type common.Block --output ${TEST_NETWORK_HOME}/channel-artifacts/config_block.json
+      jq .data.data[0].payload.data.config ${TEST_NETWORK_HOME}/channel-artifacts/config_block.json >"${OUTPUT}"
+    fi
+  else
+    configtxlator proto_decode --input ${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb --type common.Block --output ${TEST_NETWORK_HOME}/channel-artifacts/config_block.json
+    jq .data.data[0].payload.data.config ${TEST_NETWORK_HOME}/channel-artifacts/config_block.json >"${OUTPUT}"
+  fi
   res=$?
   { set +x; } 2>/dev/null
   verifyResult $res "Failed to parse channel configuration, make sure you have jq installed"

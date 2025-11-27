@@ -94,6 +94,18 @@ test-network/fabric-samples/
 **/channel-artifacts/
 **/system-genesis-block/
 
+# Backend / local application runtime
+# wallet files, connection profiles and local wallets should not be committed
+backend/wallet/
+backend/*.log
+backend/.env
+backend/.env.*
+backend/node_modules/
+
+# Connection profiles and generated CCPs inside organizations (may be generated at runtime)
+# if you keep trusted copies, adjust as needed
+organizations/**/connection-*.json
+
 # Temporary docker / compose artifacts
 docker-compose.override.yml
 docker-compose.*.yml

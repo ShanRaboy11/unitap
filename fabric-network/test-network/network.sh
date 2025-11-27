@@ -216,11 +216,6 @@ function createOrgs() {
     infoln "Creating Org2 Identities"
 
     set -x
-    if uname | grep -i mingw > /dev/null 2>&1; then
-      CRYPTOCFG_ORG2="${PWD_WIN}\\organizations\\cryptogen\\crypto-config-org2.yaml"
-    else
-      CRYPTOCFG_ORG2="./organizations/cryptogen/crypto-config-org2.yaml"
-    fi
     cryptogen generate --config="$CRYPTOCFG_ORG2" --output="$CRYPTO_OUT"
     res=$?
     { set +x; } 2>/dev/null
@@ -231,11 +226,6 @@ function createOrgs() {
     infoln "Creating Orderer Org Identities"
 
     set -x
-    if uname | grep -i mingw > /dev/null 2>&1; then
-      CRYPTOCFG_ORDERER="${PWD_WIN}\\organizations\\cryptogen\\crypto-config-orderer.yaml"
-    else
-      CRYPTOCFG_ORDERER="./organizations/cryptogen/crypto-config-orderer.yaml"
-    fi
     cryptogen generate --config="$CRYPTOCFG_ORDERER" --output="$CRYPTO_OUT"
     res=$?
     { set +x; } 2>/dev/null

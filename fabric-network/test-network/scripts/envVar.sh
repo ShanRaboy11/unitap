@@ -51,6 +51,23 @@ setGlobals() {
     errorln "ORG Unknown"
   fi
 
+  # If running under Git Bash / MSYS (MINGW), convert path variables to Windows-style
+  if uname | grep -i mingw > /dev/null 2>&1; then
+    if command -v cygpath > /dev/null 2>&1; then
+      CORE_PEER_MSPCONFIGPATH=$(cygpath -w "$CORE_PEER_MSPCONFIGPATH")
+      CORE_PEER_TLS_ROOTCERT_FILE=$(cygpath -w "$CORE_PEER_TLS_ROOTCERT_FILE")
+    else
+      # Fallback: use pwd -W to build Windows style paths
+      PWD_WIN=$(pwd -W)
+      # convert TEST_NETWORK_HOME-based paths to Windows style by replacing the POSIX prefix
+      POSIX_PREFIX="$TEST_NETWORK_HOME"
+      WIN_PREFIX="$PWD_WIN"
+      # Replace the POSIX prefix only if it appears at the start of the path
+      CORE_PEER_MSPCONFIGPATH="${CORE_PEER_MSPCONFIGPATH/#$POSIX_PREFIX/$WIN_PREFIX}"
+      CORE_PEER_TLS_ROOTCERT_FILE="${CORE_PEER_TLS_ROOTCERT_FILE/#$POSIX_PREFIX/$WIN_PREFIX}"
+    fi
+  fi
+
   if [ "$VERBOSE" = "true" ]; then
     env | grep CORE
   fi
