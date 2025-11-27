@@ -5,8 +5,8 @@ const crypto = require('crypto');
 
 async function main() {
   try {
-    const contract = await connectToFabric();
-    console.log('Connected to Fabric contract');
+    const { gateway, contract } = await connectToFabric();
+    console.log('Connected to Fabric contract (gateway active)');
 
     const tokenSignature = 'test-' + (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.floor(Math.random()*1000)}`);
     const userId = process.env.TEST_USER_ID || '00000000-0000-0000-0000-000000000000';
@@ -58,9 +58,16 @@ async function main() {
     console.log('getTransactionsByUser:', userTxs.toString());
 
     console.log('\nTest script completed successfully.');
+    try {
+      await gateway.disconnect();
+    } catch (e) {
+      console.warn('Failed to disconnect gateway cleanly', e);
+    }
     process.exit(0);
   } catch (err) {
     console.error('Error running test script:', err);
+    // Attempt to disconnect if possible
+    try { if (err && err.gateway) await err.gateway.disconnect(); } catch(e){}
     process.exit(1);
   }
 }

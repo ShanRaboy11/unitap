@@ -32,7 +32,20 @@ async function populateWallet(options = {}) {
     throw new Error(`Admin keystore not found at ${keyDir}`);
   }
 
-  const keyFiles = fs.readdirSync(keyDir).filter((f) => f.endsWith(".pem") || f.endsWith(".key"));
+  // The test-network keystore sometimes creates a key file with no extension (e.g. 'priv_sk').
+  // First look for common extensions, otherwise fall back to any file in the keystore.
+  let keyFiles = fs.readdirSync(keyDir).filter((f) => f.endsWith('.pem') || f.endsWith('.key'));
+  if (keyFiles.length === 0) {
+    // fallback: pick the first regular file in the keystore
+    keyFiles = fs.readdirSync(keyDir).filter((f) => {
+      try {
+        return fs.statSync(path.join(keyDir, f)).isFile();
+      } catch (e) {
+        return false;
+      }
+    });
+  }
+
   if (keyFiles.length === 0) {
     throw new Error(`No private key file found in ${keyDir}`);
   }
@@ -50,7 +63,9 @@ async function populateWallet(options = {}) {
     return "Org1MSP";
   })();
 
-  const walletPath = path.join(process.cwd(), "wallet");
+  // Default wallet location: backend/wallet (safer than repo root). Can be overridden
+  // by setting the WALLET_PATH environment variable.
+  const walletPath = process.env.WALLET_PATH || path.join(__dirname, '..', 'wallet');
   const wallet = await Wallets.newFileSystemWallet(walletPath);
 
   const identity = {

@@ -15,7 +15,7 @@ class UniTapContract extends Contract {
       userId,
       amount: parseFloat(amount),
       action,
-      timestamp: new Date().toISOString()
+      timestamp: this._getTxTimestampISO(ctx)
     };
 
     await ctx.stub.putState(txId, Buffer.from(JSON.stringify(entry)));
@@ -36,6 +36,27 @@ class UniTapContract extends Contract {
     const n = parseFloat(v);
     if (Number.isNaN(n)) return 0.0;
     return n;
+  }
+
+  _getTxTimestampDate(ctx) {
+    const ts = ctx.stub.getTxTimestamp();
+    if (!ts) return new Date();
+    let seconds = ts.seconds;
+    const nanos = ts.nanos || 0;
+    if (typeof seconds === 'object' && seconds !== null) {
+      // protobuf Long (low/high) representation
+      if (seconds.low !== undefined) {
+        seconds = seconds.low;
+      } else if (seconds.toNumber) {
+        seconds = seconds.toNumber();
+      }
+    }
+    const ms = (Number(seconds) * 1000) + Math.floor(nanos / 1e6);
+    return new Date(ms);
+  }
+
+  _getTxTimestampISO(ctx) {
+    return this._getTxTimestampDate(ctx).toISOString();
   }
 
   _ensureArg(name, val) {
@@ -70,7 +91,7 @@ class UniTapContract extends Contract {
       status: 'verified',
       description: description || '',
       ecoPointsEarned: this._safeFloat(ecoPoints),
-      ledgerTimestamp: new Date().toISOString()
+      ledgerTimestamp: this._getTxTimestampISO(ctx)
     };
 
     await ctx.stub.putState(txKey, Buffer.from(JSON.stringify(entry)));
@@ -137,7 +158,7 @@ class UniTapContract extends Contract {
       amountLocked: this._safeFloat(amountLocked),
       isScanned: false,
       expiresAt: expiresAtIso,
-      createdAt: new Date().toISOString()
+      createdAt: this._getTxTimestampISO(ctx)
     };
 
     await ctx.stub.putState(key, Buffer.from(JSON.stringify(token)));
@@ -160,7 +181,7 @@ class UniTapContract extends Contract {
     }
 
     const token = JSON.parse(data.toString());
-    const now = new Date();
+    const now = this._getTxTimestampDate(ctx);
     if (token.isScanned) {
       throw new Error(`QR token ${tokenSignature} has already been scanned`);
     }
@@ -222,4 +243,4 @@ class UniTapContract extends Contract {
   }
 }
 
-module.exports = UniTapContract;
+module.exports.contracts = [ UniTapContract ];
