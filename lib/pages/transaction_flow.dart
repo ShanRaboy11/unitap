@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../main.dart'; // Import to access Transaction/User models
+import 'package:unitap/models.dart'; // Models (User, Transaction)
 
 // Steps Enum
 enum TransactionStep { type, method, details, confirm, qr, receipt }
