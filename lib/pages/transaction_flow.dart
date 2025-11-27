@@ -784,10 +784,13 @@ class _TransactionFlowState extends State<TransactionFlow> {
             _PrimaryButton(
               text: 'Back to Dashboard',
               onTap: () {
+                // Only perform a single navigation action.
+                // If we have a completed transaction, return it so dashboard can update.
                 if (completedTransaction != null) {
-                  widget.onComplete(completedTransaction!);
+                  widget.onComplete(completedTransaction!); // Pops with result
+                } else {
+                  widget.onBack(); // Simple pop without result
                 }
-                widget.onBack();
               },
             ),
             // Ensure returning transaction to caller

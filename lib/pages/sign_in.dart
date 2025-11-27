@@ -146,9 +146,13 @@ class _SignInState extends State<SignIn> with TickerProviderStateMixin {
           Positioned(
             top: 50,
             right: 24,
-            child: _ThemeToggleButton(
-              isDarkMode: isDark,
-              onToggle: widget.onToggleTheme,
+            child: _SquareIconButton(
+              icon: isDark
+                  ? Icons.wb_sunny_rounded
+                  : Icons.nightlight_round_rounded,
+              color: isDark ? Colors.amber : Colors.indigo,
+              isDark: isDark,
+              onTap: widget.onToggleTheme,
             ),
           ),
 
@@ -674,53 +678,39 @@ class _AnimatedShape extends StatelessWidget {
   }
 }
 
-class _ThemeToggleButton extends StatelessWidget {
-  final bool isDarkMode;
-  final VoidCallback onToggle;
-
-  const _ThemeToggleButton({required this.isDarkMode, required this.onToggle});
-
+class _SquareIconButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final bool isDark;
+  final VoidCallback onTap;
+  const _SquareIconButton({
+    required this.icon,
+    required this.color,
+    required this.isDark,
+    required this.onTap,
+  });
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onToggle,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      onTap: onTap,
+      child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDarkMode ? const Color(0xFF1E293B) : Colors.white,
+          color: isDark ? const Color(0xFF0F2F3F) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isDarkMode
+            color: isDark
                 ? Colors.teal.withValues(alpha: 0.3)
-                : Colors.grey.shade200,
+                : Colors.green.shade200,
           ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
-              offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (child, anim) =>
-              RotationTransition(turns: anim, child: child),
-          child: isDarkMode
-              ? const Icon(
-                  Icons.wb_sunny_rounded,
-                  key: ValueKey('sun'),
-                  color: Colors.amber,
-                  size: 20,
-                )
-              : const Icon(
-                  Icons.nightlight_round_outlined,
-                  key: ValueKey('moon'),
-                  color: Colors.indigo,
-                  size: 20,
-                ),
-        ),
+        child: Icon(icon, color: color, size: 20),
       ),
     );
   }
