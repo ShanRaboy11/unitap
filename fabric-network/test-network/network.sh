@@ -22,6 +22,12 @@ export PATH="${ROOTDIR}/../bin:${PWD}/../bin:$PATH"
 export FABRIC_CFG_PATH="${PWD}/configtx"
 export VERBOSE=false
 
+# If running under Git Bash / MSYS (MINGW), disable automatic path conversion
+# which can break Docker volume mounts and path handling for Windows paths.
+if uname | grep -i mingw > /dev/null 2>&1; then
+  export MSYS_NO_PATHCONV=1
+  export MSYS2_ARG_CONV_EXCL='*'
+fi
 # push to the required directory & set a trap to go back if needed
 pushd "${ROOTDIR}" > /dev/null
 trap "popd > /dev/null" EXIT
@@ -169,8 +175,38 @@ function createOrgs() {
 
     infoln "Creating Org1 Identities"
 
+    # If running under Git Bash (MINGW), convert paths to Windows form for Windows-native binaries
+    # Prefer configs under organizations/cryptogen if present; otherwise fall back
+    # to the stable copies in ./cryptogen-configs (these are tracked in git)
+    if [ -d "./organizations/cryptogen" ]; then
+      SRC_CONFIG_DIR="./organizations/cryptogen"
+    else
+      SRC_CONFIG_DIR="./cryptogen-configs"
+    fi
+
+    if uname | grep -i mingw > /dev/null 2>&1; then
+      if command -v cygpath > /dev/null 2>&1; then
+        CRYPTOCFG_ORG1=$(cygpath -w "${SRC_CONFIG_DIR}/crypto-config-org1.yaml")
+        CRYPTOCFG_ORG2=$(cygpath -w "${SRC_CONFIG_DIR}/crypto-config-org2.yaml")
+        CRYPTOCFG_ORDERER=$(cygpath -w "${SRC_CONFIG_DIR}/crypto-config-orderer.yaml")
+        CRYPTO_OUT=$(cygpath -w ./organizations)
+      else
+        PWD_WIN=$(pwd -W)
+        # Use the repository-relative paths under the Windows working directory
+        CRYPTOCFG_ORG1="${PWD_WIN}\\${SRC_CONFIG_DIR#./}\\crypto-config-org1.yaml"
+        CRYPTOCFG_ORG2="${PWD_WIN}\\${SRC_CONFIG_DIR#./}\\crypto-config-org2.yaml"
+        CRYPTOCFG_ORDERER="${PWD_WIN}\\${SRC_CONFIG_DIR#./}\\crypto-config-orderer.yaml"
+        CRYPTO_OUT="${PWD_WIN}\\organizations"
+      fi
+    else
+      CRYPTOCFG_ORG1="${SRC_CONFIG_DIR}/crypto-config-org1.yaml"
+      CRYPTOCFG_ORG2="${SRC_CONFIG_DIR}/crypto-config-org2.yaml"
+      CRYPTOCFG_ORDERER="${SRC_CONFIG_DIR}/crypto-config-orderer.yaml"
+      CRYPTO_OUT="organizations"
+    fi
+
     set -x
-    cryptogen generate --config=./organizations/cryptogen/crypto-config-org1.yaml --output="organizations"
+    cryptogen generate --config="$CRYPTOCFG_ORG1" --output="$CRYPTO_OUT"
     res=$?
     { set +x; } 2>/dev/null
     if [ $res -ne 0 ]; then
@@ -180,7 +216,12 @@ function createOrgs() {
     infoln "Creating Org2 Identities"
 
     set -x
-    cryptogen generate --config=./organizations/cryptogen/crypto-config-org2.yaml --output="organizations"
+    if uname | grep -i mingw > /dev/null 2>&1; then
+      CRYPTOCFG_ORG2="${PWD_WIN}\\organizations\\cryptogen\\crypto-config-org2.yaml"
+    else
+      CRYPTOCFG_ORG2="./organizations/cryptogen/crypto-config-org2.yaml"
+    fi
+    cryptogen generate --config="$CRYPTOCFG_ORG2" --output="$CRYPTO_OUT"
     res=$?
     { set +x; } 2>/dev/null
     if [ $res -ne 0 ]; then
@@ -190,7 +231,12 @@ function createOrgs() {
     infoln "Creating Orderer Org Identities"
 
     set -x
-    cryptogen generate --config=./organizations/cryptogen/crypto-config-orderer.yaml --output="organizations"
+    if uname | grep -i mingw > /dev/null 2>&1; then
+      CRYPTOCFG_ORDERER="${PWD_WIN}\\organizations\\cryptogen\\crypto-config-orderer.yaml"
+    else
+      CRYPTOCFG_ORDERER="./organizations/cryptogen/crypto-config-orderer.yaml"
+    fi
+    cryptogen generate --config="$CRYPTOCFG_ORDERER" --output="$CRYPTO_OUT"
     res=$?
     { set +x; } 2>/dev/null
     if [ $res -ne 0 ]; then
