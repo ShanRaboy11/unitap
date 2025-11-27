@@ -128,84 +128,103 @@ class _TransactionFlowState extends State<TransactionFlow> {
   @override
   Widget build(BuildContext context) {
     final isDark = widget.isDarkMode;
+    final bgGradient = isDark
+        ? const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0F172A), Color(0xFF082026), Color(0xFF0F172A)],
+          )
+        : const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFECFDF5), Color(0xFFF0FDFA), Colors.white],
+          );
 
     return Scaffold(
-      backgroundColor: Colors
-          .transparent, // Assumes background is handled by parent or gradient
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: _handleBack,
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF0F2F3F) : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDark
-                              ? Colors.teal.withValues(alpha: 0.3)
-                              : Colors.green.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.arrow_back_rounded,
-                        color: isDark
-                            ? Colors.teal.shade200
-                            : Colors.teal.shade600,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
+        children: [
+          // Gradient background matching dashboard
+          Container(decoration: BoxDecoration(gradient: bgGradient)),
+          // Reuse starfield style for consistency
+          Positioned.fill(child: _StarField(isDarkMode: isDark)),
+          SafeArea(
+            child: Column(
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Row(
                     children: [
-                      Text(
-                        _getStepTitle(),
-                        style: TextStyle(
-                          color: isDark
-                              ? Colors.white
-                              : Colors.blueGrey.shade900,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                      GestureDetector(
+                        onTap: _handleBack,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF0F2F3F)
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isDark
+                                  ? Colors.teal.withValues(alpha: 0.3)
+                                  : Colors.green.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            color: isDark
+                                ? Colors.teal.shade200
+                                : Colors.teal.shade600,
+                            size: 20,
+                          ),
                         ),
                       ),
-                      Text(
-                        'Step ${TransactionStep.values.indexOf(currentStep) + 1} of 6',
-                        style: TextStyle(
-                          color: isDark
-                              ? Colors.teal.shade400
-                              : Colors.teal.shade600,
-                          fontSize: 12,
-                        ),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _getStepTitle(),
+                            style: TextStyle(
+                              color: isDark
+                                  ? Colors.white
+                                  : Colors.blueGrey.shade900,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            'Step ${TransactionStep.values.indexOf(currentStep) + 1} of 6',
+                            style: TextStyle(
+                              color: isDark
+                                  ? Colors.teal.shade400
+                                  : Colors.teal.shade600,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-
-            // Animated Content
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                switchInCurve: Curves.easeOut,
-                switchOutCurve: Curves.easeIn,
-                child: SingleChildScrollView(
-                  key: ValueKey(currentStep),
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: _buildCurrentStep(),
                 ),
-              ),
+
+                // Animated Content
+                Expanded(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    switchInCurve: Curves.easeOut,
+                    switchOutCurve: Curves.easeIn,
+                    child: SingleChildScrollView(
+                      key: ValueKey(currentStep),
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _buildCurrentStep(),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -762,7 +781,18 @@ class _TransactionFlowState extends State<TransactionFlow> {
               onTap: () {},
             ),
             const SizedBox(height: 12),
-            _PrimaryButton(text: 'Back to Dashboard', onTap: widget.onBack),
+            _PrimaryButton(
+              text: 'Back to Dashboard',
+              onTap: () {
+                if (completedTransaction != null) {
+                  widget.onComplete(completedTransaction!);
+                }
+                widget.onBack();
+              },
+            ),
+            // Ensure returning transaction to caller
+            // (Alternative path if user uses the button instead of back arrow)
+            // Converted above line to include completion logic.
             const SizedBox(height: 30),
           ],
         );
@@ -1157,4 +1187,89 @@ class _FakeQRPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Lightweight starfield (duplicated from dashboard for consistent background)
+class _StarField extends StatefulWidget {
+  final bool isDarkMode;
+  const _StarField({required this.isDarkMode});
+  @override
+  State<_StarField> createState() => _StarFieldState();
+}
+
+class _StarFieldState extends State<_StarField> with TickerProviderStateMixin {
+  final List<_Star> _stars = [];
+  final math.Random _rng = math.Random();
+  @override
+  void initState() {
+    super.initState();
+    for (int i = 0; i < 30; i++) {
+      _stars.add(
+        _Star(
+          left: _rng.nextDouble(),
+          top: _rng.nextDouble(),
+          size: 2 + _rng.nextDouble() * 3,
+          controller: AnimationController(
+            vsync: this,
+            duration: Duration(milliseconds: 1500 + _rng.nextInt(2000)),
+          )..repeat(reverse: true),
+          delay: Duration(milliseconds: _rng.nextInt(2000)),
+        ),
+      );
+    }
+    for (var star in _stars) {
+      Future.delayed(star.delay, () {
+        if (mounted) star.controller.forward();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    for (var star in _stars) {
+      star.controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: _stars.map((star) {
+        return Positioned(
+          left: star.left * MediaQuery.of(context).size.width,
+          top: star.top * MediaQuery.of(context).size.height,
+          child: FadeTransition(
+            opacity: Tween<double>(
+              begin: 0.2,
+              end: 0.7,
+            ).animate(star.controller),
+            child: Container(
+              width: star.size,
+              height: star.size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: widget.isDarkMode
+                    ? Colors.white.withValues(alpha: 0.5)
+                    : const Color(0xFF14B8A6).withValues(alpha: 0.4),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _Star {
+  final double left, top, size;
+  final AnimationController controller;
+  final Duration delay;
+  _Star({
+    required this.left,
+    required this.top,
+    required this.size,
+    required this.controller,
+    required this.delay,
+  });
 }

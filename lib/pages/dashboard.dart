@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:unitap/models.dart';
+import 'package:unitap/pages/transaction_flow.dart';
 
 class Dashboard extends StatefulWidget {
   final User user;
@@ -11,6 +12,7 @@ class Dashboard extends StatefulWidget {
   final VoidCallback onLogout;
   final Set<String> hiddenBalances;
   final Function(String) onToggleBalance;
+  final Function(Transaction) onAddTransaction;
 
   const Dashboard({
     super.key,
@@ -21,6 +23,7 @@ class Dashboard extends StatefulWidget {
     required this.onLogout,
     required this.hiddenBalances,
     required this.onToggleBalance,
+    required this.onAddTransaction,
   });
 
   @override
@@ -546,7 +549,22 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           title: 'New Transaction',
           subtitle: 'Transfer, Deposit',
           isDark: widget.isDarkMode,
-          onTap: () {},
+          onTap: () async {
+            final txn = await Navigator.push<Transaction>(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TransactionFlow(
+                  user: widget.user,
+                  isDarkMode: widget.isDarkMode,
+                  onBack: () => Navigator.pop(context),
+                  onComplete: (t) => Navigator.pop(context, t),
+                ),
+              ),
+            );
+            if (txn != null) {
+              widget.onAddTransaction(txn);
+            }
+          },
         ),
         _ActionCard(
           icon: Icons.energy_savings_leaf_rounded,

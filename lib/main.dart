@@ -149,6 +149,12 @@ class _UniTapAppState extends State<UniTapApp> {
               hiddenBalances: hiddenBalances,
               onToggleBalance: toggleBalance,
               onLogout: handleLogout,
+              onAddTransaction: (txn) {
+                setState(() {
+                  recentTransactions.insert(0, txn);
+                  user.ecoPoints += txn.ecoPoints;
+                });
+              },
             )
           : SignIn(
               onLogin: handleLogin,
