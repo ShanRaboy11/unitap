@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:unitap/models.dart';
 import 'package:unitap/pages/transaction_flow.dart';
+import 'package:unitap/pages/eco_rewards.dart';
 
 class Dashboard extends StatefulWidget {
   final User user;
@@ -572,7 +573,25 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           title: 'Eco Rewards',
           subtitle: 'Plant Trees',
           isDark: widget.isDarkMode,
-          onTap: () {},
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => EcoRewards(
+                  user: widget.user,
+                  isDarkMode: widget.isDarkMode,
+                  onBack: () => Navigator.pop(context),
+                  onPlantTrees: (trees, pointsUsed) {
+                    setState(() {
+                      widget.user.treesPlanted += trees;
+                      widget.user.ecoPoints -= pointsUsed;
+                    });
+                  },
+                ),
+              ),
+            );
+            setState(() {}); // Refresh after potential changes
+          },
         ),
         _ActionCard(
           icon: Icons.security_rounded,
