@@ -1,0 +1,11 @@
+ATM TRANSACTION COMPLETED SUCCESSFULLY
+            ===============================
+            Timestamp: 2025-11-28 12:22:15
+            Account: 55555555-5555-5555-5555-555555555555
+            Amount: $1500.00
+            Type: withdraw
+            To Account: 
+            Hardware Operations: COMPLETED
+            Blockchain Recorded: FAILED / LOCAL COPY
+            ===============================
+            
