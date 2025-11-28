@@ -1,0 +1,48 @@
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ATM QR scanner simulator.csproj.AssemblyReference.cache
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ATM_QR_scanner_simulator.frmMainATM.resources
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ATM QR scanner simulator.csproj.GenerateResource.cache
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ATM QR scanner simulator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ATM QR scanner simulator.AssemblyInfoInputs.cache
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ATM QR scanner simulator.AssemblyInfo.cs
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ATM QR scanner simulator.csproj.CoreCompileInputs.cache
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\ATM QR scanner simulator.exe
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\ATM QR scanner simulator.deps.json
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\ATM QR scanner simulator.runtimeconfig.json
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\ATM QR scanner simulator.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\ATM QR scanner simulator.pdb
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\AForge.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\AForge.Video.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\AForge.Video.DirectShow.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Microsoft.Win32.SystemEvents.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Newtonsoft.Json.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\System.Drawing.Common.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\System.Private.Windows.Core.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\zxing.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\ZXing.Windows.Compatibility.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ATM QR s.7A3337DA.Up2Date
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ATM QR scanner simulator.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\refint\ATM QR scanner simulator.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ATM QR scanner simulator.pdb
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ATM QR scanner simulator.genruntimeconfig.cache
+C:\Users\User\source\repos\ATM QR scanner simulator\obj\Debug\net8.0-windows\ref\ATM QR scanner simulator.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Microsoft.IdentityModel.Logging.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Microsoft.IdentityModel.Tokens.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Microsoft.IO.RecyclableMemoryStream.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\MimeMapping.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Postgrest.Client.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\RestSharp.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Supabase.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Supabase.Core.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Supabase.Functions.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Supabase.Gotrue.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Supabase.Postgrest.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Supabase.Realtime.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Supabase.Storage.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\System.Reactive.dll
+C:\Users\User\source\repos\ATM QR scanner simulator\bin\Debug\net8.0-windows\Websocket.Client.dll
