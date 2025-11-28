@@ -308,7 +308,40 @@ Define functions:
 
 ---
 
-# 🏁 8. Summary
+You should **add these lines in a dedicated section** for the **AI-powered ATM Smart Health module**, since this installation is **not part of Flutter, Node.js, Supabase, or Fabric**.
+It belongs to a **separate Python-based subsystem**.
+
+### ✅ Best Placement in Your README
+
+Add it as **Section 9** (or after the Summary) with a title like:
+
+---
+
+## 🧠 8. AI-Powered ATM Smart Health (Python Module)
+
+This module uses computer vision to detect human presence near the ATM.
+If no human activity is detected, the ATM can automatically enter **power-saving mode**.
+
+### Install Dependencies
+
+```sh
+pip install opencv-python ultralytics numpy
+```
+
+### Run the AI Test Script
+
+```sh
+python AI/test_gadget.py
+```
+
+### Folder Structure Example
+
+```
+AI
+│── test_gadget.py
+
+
+# 🏁 9. Summary
 
 UniTap is an all-in-one banking ecosystem featuring:
 
