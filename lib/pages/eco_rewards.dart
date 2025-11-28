@@ -556,21 +556,23 @@ class _GradientCard extends StatelessWidget {
           ),
         ],
       ),
+      clipBehavior: Clip.hardEdge, // Hide overflow of decorative circles
       child: Stack(
         children: [
+          // Single decorative circle (top-right) with clipped overflow
           Positioned(
-            top: -20,
-            right: -20,
+            top: -30,
+            right: -30,
             child: Container(
-              width: 100,
-              height: 100,
+              width: 120,
+              height: 120,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: Colors.white.withValues(alpha: 0.10),
                 shape: BoxShape.circle,
               ),
             ),
           ),
-          // Ensure padding is applied to the content
+          // Foreground padded content
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -579,12 +581,12 @@ class _GradientCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: Colors.white.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: Colors.white, size: 24),
                 ),
-                const SizedBox(height: 24), // Space between icon and text
+                const SizedBox(height: 24),
                 Text(
                   label,
                   style: TextStyle(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:unitap/models.dart';
 import 'package:unitap/pages/transaction_flow.dart';
 import 'package:unitap/pages/eco_rewards.dart';
+import 'package:unitap/pages/network_security.dart';
 
 class Dashboard extends StatefulWidget {
   final User user;
@@ -599,7 +600,17 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           title: 'Network Security',
           subtitle: 'Blockchain Info',
           isDark: widget.isDarkMode,
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => NetworkSecurity(
+                  isDarkMode: widget.isDarkMode,
+                  onBack: () => Navigator.pop(context),
+                ),
+              ),
+            );
+          },
         ),
         _ActionCard(
           icon: Icons.history_rounded,
