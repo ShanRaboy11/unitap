@@ -308,13 +308,6 @@ Define functions:
 
 ---
 
-You should **add these lines in a dedicated section** for the **AI-powered ATM Smart Health module**, since this installation is **not part of Flutter, Node.js, Supabase, or Fabric**.
-It belongs to a **separate Python-based subsystem**.
-
-### ✅ Best Placement in Your README
-
-Add it as **Section 9** (or after the Summary) with a title like:
-
 ---
 
 ## 🧠 8. AI-Powered ATM Smart Health (Python Module)
