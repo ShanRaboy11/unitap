@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart'; // REQUIRED PACKAGE
 import 'package:unitap/models.dart'; // Models (User, Transaction)
 
 // Steps Enum
@@ -38,8 +39,10 @@ class _TransactionFlowState extends State<TransactionFlow> {
 
   // QR Logic
   String qrToken = '';
+  String qrDataString = ''; // The actual data to encode
   int timeLeft = 30;
   Timer? _timer;
+  bool isExpired = false; // Keep QR data even after expiry
 
   Transaction? completedTransaction;
 
@@ -55,16 +58,31 @@ class _TransactionFlowState extends State<TransactionFlow> {
   // --- Logic ---
 
   void _generateQR() {
+    // Build QR payload for any transaction type/method
+    final now = DateTime.now().toUtc();
+    final expires = now.add(const Duration(minutes: 15));
+    final amt = double.tryParse(_amountCtrl.text) ?? 0.0;
+    final toAccount = _recipientCtrl.text.isNotEmpty ? _recipientCtrl.text : '';
+    final txType = transactionType ?? 'transfer';
+
+    final String payload =
+        '{"token_id":"2e89202b-8e85-4383-9864-0ab64a632d8e","UserId":"44444444-4444-4444-4444-444444444444","TokenSignature":"qr_expired_111111","TransactionType":"$txType","ToAccount":"$toAccount","Amount":${amt.toStringAsFixed(2)},"is_scanned":"false","created_at":"${now.toIso8601String()}","expires_at":"${expires.toIso8601String()}"}';
+
     setState(() {
-      qrToken = 'TOKEN-${math.Random().nextInt(999999)}';
-      timeLeft = 30;
+      qrToken = 'qr_expired_111111';
+      qrDataString = payload;
+      timeLeft = 900; // 15 minutes
+      isExpired = false;
     });
+
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
       if (timeLeft > 0) {
         setState(() => timeLeft--);
       } else {
-        _handleQRConfirm(); // Auto-proceed
+        setState(() => isExpired = true); // Keep QR & data unchanged
+        _timer?.cancel();
       }
     });
   }
@@ -143,9 +161,7 @@ class _TransactionFlowState extends State<TransactionFlow> {
     return Scaffold(
       body: Stack(
         children: [
-          // Gradient background matching dashboard
           Container(decoration: BoxDecoration(gradient: bgGradient)),
-          // Reuse starfield style for consistency
           Positioned.fill(child: _StarField(isDarkMode: isDark)),
           SafeArea(
             child: Column(
@@ -347,7 +363,9 @@ class _TransactionFlowState extends State<TransactionFlow> {
                 controller: _amountCtrl,
                 hint: '0.00',
                 prefix: '\$',
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
               ),
               footer:
                   '+${(double.tryParse(_amountCtrl.text) ?? 0) ~/ 10} eco points will be earned',
@@ -531,7 +549,7 @@ class _TransactionFlowState extends State<TransactionFlow> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'One-Time Use Token',
+                        'Secure Transaction QR',
                         style: TextStyle(
                           color: widget.isDarkMode
                               ? Colors.white
@@ -543,10 +561,10 @@ class _TransactionFlowState extends State<TransactionFlow> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Fake QR Code
+                  // --- REAL QR CODE IMPLEMENTATION ---
                   Container(
-                    width: 200,
-                    height: 200,
+                    width: 220,
+                    height: 220,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
@@ -557,30 +575,61 @@ class _TransactionFlowState extends State<TransactionFlow> {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(16),
-                    child: CustomPaint(painter: _FakeQRPainter()),
+                    padding: const EdgeInsets.all(12),
+                    child: Center(
+                      child: QrImageView(
+                        data:
+                            qrDataString, // The actual JSON data from user input
+                        version: QrVersions.auto,
+                        size: 200.0,
+                        backgroundColor: Colors.white,
+                        // Fixed: Updated to valid qr_flutter class names (QrDataModuleStyle and QrEyeStyle)
+                        dataModuleStyle: QrDataModuleStyle(
+                          dataModuleShape: QrDataModuleShape.square,
+                          color: Colors.blueGrey.shade900,
+                        ),
+                        eyeStyle: QrEyeStyle(
+                          eyeShape: QrEyeShape.square,
+                          color: Colors.teal.shade700,
+                        ),
+                      ),
+                    ),
                   ),
 
+                  // -----------------------------------
                   const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.timer_rounded,
-                        color: widget.isDarkMode
-                            ? Colors.tealAccent
-                            : Colors.teal,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Expires in ${timeLeft}s',
-                        style: TextStyle(
+                      if (!isExpired) ...[
+                        Icon(
+                          Icons.timer_rounded,
                           color: widget.isDarkMode
                               ? Colors.tealAccent
                               : Colors.teal,
+                          size: 16,
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Expires in ${timeLeft}s',
+                          style: TextStyle(
+                            color: widget.isDarkMode
+                                ? Colors.tealAccent
+                                : Colors.teal,
+                          ),
+                        ),
+                      ] else ...[
+                        Icon(
+                          Icons.lock_clock_rounded,
+                          color: Colors.redAccent,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'QR expired (data retained)',
+                          style: TextStyle(color: Colors.redAccent),
+                        ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -595,7 +644,7 @@ class _TransactionFlowState extends State<TransactionFlow> {
                     child: Column(
                       children: [
                         Text(
-                          'Token ID',
+                          'OTP Verification',
                           style: TextStyle(
                             fontSize: 10,
                             color: widget.isDarkMode
@@ -607,6 +656,9 @@ class _TransactionFlowState extends State<TransactionFlow> {
                           qrToken,
                           style: TextStyle(
                             fontFamily: 'monospace',
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
                             color: widget.isDarkMode
                                 ? Colors.white
                                 : Colors.black87,
@@ -617,7 +669,9 @@ class _TransactionFlowState extends State<TransactionFlow> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Scan this at the ATM to complete.',
+                    // Fixed: Removed unnecessary braces from string interpolation
+                    'Scan this at the ATM or POS to complete the $transactionType via ${_formatPaymentMethod(paymentMethod ?? "")}.',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12,
                       color: widget.isDarkMode
@@ -629,11 +683,21 @@ class _TransactionFlowState extends State<TransactionFlow> {
               ),
             ),
             const SizedBox(height: 24),
-            _PrimaryButton(
-              text: 'QR Scanned - Proceed',
-              icon: Icons.check_circle_outline_rounded,
-              onTap: _handleQRConfirm,
-            ),
+            if (!isExpired)
+              _PrimaryButton(
+                text: 'Simulate Scan Success',
+                icon: Icons.check_circle_outline_rounded,
+                onTap: _handleQRConfirm,
+              )
+            else
+              Opacity(
+                opacity: 0.45,
+                child: _PrimaryButton(
+                  text: 'QR Expired',
+                  icon: Icons.block_rounded,
+                  onTap: () {},
+                ),
+              ),
           ],
         );
 
@@ -784,18 +848,13 @@ class _TransactionFlowState extends State<TransactionFlow> {
             _PrimaryButton(
               text: 'Back to Dashboard',
               onTap: () {
-                // Only perform a single navigation action.
-                // If we have a completed transaction, return it so dashboard can update.
                 if (completedTransaction != null) {
-                  widget.onComplete(completedTransaction!); // Pops with result
+                  widget.onComplete(completedTransaction!);
                 } else {
-                  widget.onBack(); // Simple pop without result
+                  widget.onBack();
                 }
               },
             ),
-            // Ensure returning transaction to caller
-            // (Alternative path if user uses the button instead of back arrow)
-            // Converted above line to include completion logic.
             const SizedBox(height: 30),
           ],
         );
@@ -1139,57 +1198,6 @@ class _SummaryRow extends StatelessWidget {
       ),
     );
   }
-}
-
-// Simple Fake QR Painter to avoid dependencies
-class _FakeQRPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0xFF0A2F2F);
-    final blockSize = size.width / 25;
-
-    // Corner Markers
-    void drawCorner(double dx, double dy) {
-      canvas.drawRect(
-        Rect.fromLTWH(dx, dy, blockSize * 7, blockSize * 7),
-        paint
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = blockSize,
-      );
-      canvas.drawRect(
-        Rect.fromLTWH(
-          dx + blockSize * 2,
-          dy + blockSize * 2,
-          blockSize * 3,
-          blockSize * 3,
-        ),
-        paint..style = PaintingStyle.fill,
-      );
-    }
-
-    drawCorner(0, 0);
-    drawCorner(size.width - blockSize * 7, 0);
-    drawCorner(0, size.height - blockSize * 7);
-
-    // Random blocks
-    final rng = math.Random();
-    paint.style = PaintingStyle.fill;
-    for (int i = 0; i < 150; i++) {
-      double x = rng.nextInt(25) * blockSize;
-      double y = rng.nextInt(25) * blockSize;
-      // Avoid corners
-      if ((x < blockSize * 8 && y < blockSize * 8) ||
-          (x > size.width - blockSize * 8 && y < blockSize * 8) ||
-          (x < blockSize * 8 && y > size.height - blockSize * 8)) {
-        continue;
-      }
-
-      canvas.drawRect(Rect.fromLTWH(x, y, blockSize, blockSize), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // Lightweight starfield (duplicated from dashboard for consistent background)

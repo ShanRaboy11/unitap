@@ -13,7 +13,9 @@ class NetworkSecurity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = isDarkMode;
-    // Matching the gradient from previous screens
+
+    final bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFECFDF5);
+
     final bgGradient = isDark
         ? const LinearGradient(
             begin: Alignment.topCenter,
@@ -63,23 +65,38 @@ class NetworkSecurity extends StatelessWidget {
     ];
 
     return Scaffold(
+      backgroundColor: bgColor,
       body: Stack(
+        fit: StackFit.expand,
         children: [
           Container(decoration: BoxDecoration(gradient: bgGradient)),
+
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 60),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 24),
                   _buildHeader(isDark),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 32),
+                  _buildSectionTitle('System Status', isDark),
                   _buildStatusCard(isDark, mockNetworkStats),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 32),
+                  _buildSectionTitle('Live Metrics', isDark),
                   _buildNetworkStats(isDark, mockNetworkStats),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 32),
+                  _buildSectionTitle('Security Protocols', isDark),
                   _buildSecurityFeatures(isDark),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 32),
+                  _buildSectionTitle('Recent Blocks', isDark),
                   _buildRecentBlocks(isDark, recentBlocks),
+
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -89,36 +106,30 @@ class NetworkSecurity extends StatelessWidget {
     );
   }
 
+  // --- Widgets ---
+
+  Widget _buildSectionTitle(String title, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: isDark ? Colors.white : Colors.blueGrey.shade900,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+      ),
+    );
+  }
+
   Widget _buildHeader(bool isDark) {
     return Row(
       children: [
         GestureDetector(
           onTap: onBack,
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF0F2F3F) : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isDark
-                    ? Colors.teal.withValues(alpha: 0.3)
-                    : Colors.green.withValues(alpha: 0.2),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                ),
-              ],
-            ),
-            child: Icon(
-              Icons.arrow_back_rounded,
-              color: isDark ? Colors.teal.shade400 : Colors.teal.shade600,
-              size: 20,
-            ),
-          ),
+          child: _GlassIconBtn(icon: Icons.arrow_back_rounded, isDark: isDark),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 16),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -126,14 +137,15 @@ class NetworkSecurity extends StatelessWidget {
               'Network Security',
               style: TextStyle(
                 color: isDark ? Colors.white : Colors.blueGrey.shade900,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
+                fontSize: 22,
               ),
             ),
             Text(
               'Blockchain Technology',
               style: TextStyle(
                 color: isDark ? Colors.teal.shade400 : Colors.teal.shade600,
-                fontSize: 12,
+                fontSize: 14,
               ),
             ),
           ],
@@ -144,39 +156,35 @@ class NetworkSecurity extends StatelessWidget {
 
   Widget _buildStatusCard(bool isDark, _Stats stats) {
     return _GradientCard(
-      colors: const [Color(0xFF7C3AED), Color(0xFF4338CA)], // Purple Gradient
+      colors: const [Color(0xFF7C3AED), Color(0xFF4338CA)],
       borderRadius: 28,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Left: Icon + Text
               Row(
                 children: [
                   Icon(
                     Icons.shield_rounded,
                     color: Colors.purple.shade100,
-                    size: 24,
+                    size: 20,
                   ),
                   const SizedBox(width: 8),
                   const Text(
                     'Network Status',
                     style: TextStyle(
                       color: Color(0xFFE9D5FF),
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
               ),
-              // Right: Badge
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
+                  horizontal: 10,
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
@@ -184,23 +192,22 @@ class NetworkSecurity extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: 8,
-                      height: 8,
+                      width: 6,
+                      height: 6,
                       decoration: const BoxDecoration(
                         color: Colors.greenAccent,
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     const Text(
                       'Optimal',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -208,23 +215,17 @@ class NetworkSecurity extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 24),
-
-          // Main Title
           const Text(
             'UniTap Blockchain',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.bold,
               letterSpacing: -0.5,
             ),
           ),
-
           const SizedBox(height: 24),
-
-          // Bottom Stats Row
           Row(
             children: [
               Expanded(
@@ -241,7 +242,7 @@ class NetworkSecurity extends StatelessWidget {
                         'Network Uptime',
                         style: TextStyle(
                           color: Color(0xFFD8B4FE),
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                       ),
                       SizedBox(height: 4),
@@ -272,7 +273,7 @@ class NetworkSecurity extends StatelessWidget {
                         'Active Nodes',
                         style: TextStyle(
                           color: Color(0xFFD8B4FE),
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                       ),
                       SizedBox(height: 4),
@@ -296,78 +297,52 @@ class NetworkSecurity extends StatelessWidget {
   }
 
   Widget _buildNetworkStats(bool isDark, _Stats stats) {
-    return _GlassContainer(
-      isDark: isDark,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.insights_rounded,
-                color: isDark ? Colors.teal.shade400 : Colors.teal.shade600,
-                size: 20,
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _NetworkStatCard(
+                isDark: isDark,
+                icon: Icons.storage_rounded,
+                label: 'Total\nTransactions',
+                value: _comma(stats.totalTransactions),
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Network Statistics',
-                style: TextStyle(
-                  color: isDark ? Colors.white : Colors.blueGrey.shade900,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _NetworkStatCard(
+                isDark: isDark,
+                icon: Icons.flash_on_rounded,
+                label: 'Avg Speed',
+                value: stats.averageSpeed,
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Row 1
-          Row(
-            children: [
-              Expanded(
-                child: _NetworkStatCard(
-                  isDark: isDark,
-                  icon: Icons.storage_rounded,
-                  label: 'Total\nTransactions',
-                  value: _comma(stats.totalTransactions),
-                ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _NetworkStatCard(
+                isDark: isDark,
+                icon: Icons.trending_up_rounded,
+                label: 'Network\nUptime',
+                value: stats.uptime,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _NetworkStatCard(
-                  isDark: isDark,
-                  icon: Icons.flash_on_rounded,
-                  label: 'Avg Speed',
-                  value: stats.averageSpeed,
-                ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _NetworkStatCard(
+                isDark: isDark,
+                icon: Icons.lock_outline_rounded,
+                label: 'Active Nodes',
+                value: stats.nodesActive.toString(),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Row 2
-          Row(
-            children: [
-              Expanded(
-                child: _NetworkStatCard(
-                  isDark: isDark,
-                  icon: Icons.trending_up_rounded,
-                  label: 'Network\nUptime',
-                  value: stats.uptime,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _NetworkStatCard(
-                  isDark: isDark,
-                  icon: Icons.lock_outline_rounded,
-                  label: 'Active Nodes',
-                  value: stats.nodesActive.toString(),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -375,59 +350,37 @@ class NetworkSecurity extends StatelessWidget {
     return _GlassContainer(
       isDark: isDark,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.shield_rounded,
-                color: isDark ? Colors.teal.shade400 : Colors.teal.shade600,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Security Features',
-                style: TextStyle(
-                  color: isDark ? Colors.white : Colors.blueGrey.shade900,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
           _FeatureItem(
             isDark: isDark,
             icon: Icons.lock_rounded,
             title: 'End-to-End Encryption',
-            subtitle:
-                'All transactions are encrypted using military-grade AES-256 encryption',
+            subtitle: 'Military-grade AES-256 encryption',
           ),
           _FeatureItem(
             isDark: isDark,
             icon: Icons.history_edu_rounded,
             title: 'Immutable Ledger',
-            subtitle:
-                'Transaction history cannot be altered or deleted once recorded on the blockchain',
+            subtitle: 'History cannot be altered or deleted',
           ),
           _FeatureItem(
             isDark: isDark,
             icon: Icons.verified_user_rounded,
             title: 'Distributed Verification',
-            subtitle:
-                'Multiple nodes verify each transaction ensuring maximum security and reliability',
+            subtitle: 'Verified by multiple nodes',
           ),
           _FeatureItem(
             isDark: isDark,
             icon: Icons.remove_red_eye_rounded,
             title: 'Real-Time Monitoring',
-            subtitle:
-                '24/7 network monitoring detects and prevents suspicious activities instantly',
+            subtitle: '24/7 detection of suspicious activities',
           ),
           _FeatureItem(
             isDark: isDark,
             icon: Icons.vpn_key_rounded,
-            title: 'Multi-Signature Authorization',
-            subtitle:
-                'High-value transactions require multiple confirmations for added security',
+            title: 'Multi-Signature Auth',
+            subtitle: 'High-value security confirmations',
+            isLast: true,
           ),
         ],
       ),
@@ -435,78 +388,149 @@ class NetworkSecurity extends StatelessWidget {
   }
 
   Widget _buildRecentBlocks(bool isDark, List<_BlockInfo> blocks) {
-    return _GlassContainer(
-      isDark: isDark,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Column(
+      children: [
+        _GlassContainer(
+          isDark: isDark,
+          child: Column(
+            children: [
+              ...blocks.asMap().entries.map((e) {
+                final b = e.value;
+                final isLast = e.key == blocks.length - 1;
+                return Container(
+                  margin: EdgeInsets.only(bottom: isLast ? 0 : 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? Colors.teal.withValues(alpha: 0.15)
+                                  : Colors.green.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              Icons.grid_3x3_rounded,
+                              size: 18,
+                              color: isDark ? Colors.tealAccent : Colors.teal,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Block #${_comma(b.block)}',
+                                style: TextStyle(
+                                  color: isDark
+                                      ? Colors.white
+                                      : Colors.blueGrey.shade900,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                b.time,
+                                style: TextStyle(
+                                  color: isDark
+                                      ? Colors.teal.shade300
+                                      : Colors.teal.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${b.txns} Txns',
+                            style: const TextStyle(
+                              color: Color(0xFF00DC82),
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '${b.hash.substring(0, 6)}...${b.hash.substring(b.hash.length - 4)}',
+                            style: TextStyle(
+                              color: isDark
+                                  ? Colors.teal.shade500
+                                  : Colors.teal.shade600,
+                              fontSize: 12,
+                              fontFamily: 'monospace',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // --- NEW: "What are blocks?" Info Card ---
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.blue.withValues(alpha: 0.1)
+                : Colors.blue.shade50.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark
+                  ? Colors.blue.withValues(alpha: 0.3)
+                  : Colors.blue.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(
-                Icons.storage_rounded,
-                color: isDark ? Colors.teal.shade400 : Colors.teal.shade600,
+                Icons.shield_outlined,
+                color: Colors.blue.shade400,
+                size: 24,
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Recent Blocks',
-                style: TextStyle(
-                  color: isDark ? Colors.white : Colors.blueGrey.shade900,
-                  fontWeight: FontWeight.w600,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'What are blocks?',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Blocks are groups of transactions bundled together and verified by the network. Each block is linked to the previous one, creating an unchangeable chain of records that ensures the security and transparency of all UniTap transactions.',
+                      style: TextStyle(
+                        color: isDark
+                            ? Colors.tealAccent
+                            : Colors.teal.shade700,
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          ...blocks.asMap().entries.map((e) {
-            final b = e.value;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Block #${_comma(b.block)}',
-                        style: TextStyle(
-                          color: isDark
-                              ? Colors.white
-                              : Colors.blueGrey.shade900,
-                        ),
-                      ),
-                      Text(
-                        b.time,
-                        style: TextStyle(
-                          color: isDark
-                              ? Colors.teal.shade500
-                              : Colors.teal.shade600,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const Text('txns', style: TextStyle(color: Colors.green)),
-                      Text(
-                        '${b.txns} • ${b.hash}...',
-                        style: TextStyle(
-                          color: isDark
-                              ? Colors.teal.shade500
-                              : Colors.teal.shade600,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -523,7 +547,41 @@ class NetworkSecurity extends StatelessWidget {
   }
 }
 
-// --- UPDATED GRADIENT CARD (Smaller Circles) ---
+// --- Helper Components ---
+
+class _GlassIconBtn extends StatelessWidget {
+  final IconData icon;
+  final bool isDark;
+  const _GlassIconBtn({required this.icon, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F2F3F) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark
+              ? Colors.teal.withValues(alpha: 0.3)
+              : Colors.green.withValues(alpha: 0.2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Icon(
+        icon,
+        color: isDark ? Colors.teal.shade300 : Colors.teal.shade600,
+        size: 20,
+      ),
+    );
+  }
+}
+
 class _GradientCard extends StatelessWidget {
   final List<Color> colors;
   final Widget child;
@@ -559,12 +617,11 @@ class _GradientCard extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              // 1. Top-Right Circle (Reduced Size)
               Positioned(
                 top: -80,
                 right: -60,
                 child: Container(
-                  width: 240, // Reduced from 300
+                  width: 240,
                   height: 240,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.1),
@@ -572,12 +629,11 @@ class _GradientCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // 2. Bottom-Left Circle (Reduced Size)
               Positioned(
                 bottom: -40,
                 left: -40,
                 child: Container(
-                  width: 120, // Reduced from 150
+                  width: 120,
                   height: 120,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.05),
@@ -585,7 +641,6 @@ class _GradientCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // 3. Content
               Padding(padding: const EdgeInsets.all(24), child: child),
             ],
           ),
@@ -595,6 +650,7 @@ class _GradientCard extends StatelessWidget {
   }
 }
 
+// --- UPDATED STAT CARD: Reduced Padding and Height ---
 class _NetworkStatCard extends StatelessWidget {
   final bool isDark;
   final IconData icon;
@@ -611,8 +667,10 @@ class _NetworkStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      constraints: const BoxConstraints(minHeight: 120),
+      // Reduced padding from 16 -> 12
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      // Reduced minHeight from 120 -> 100
+      constraints: const BoxConstraints(minHeight: 100),
       decoration: BoxDecoration(
         color: isDark
             ? const Color(0xFF0A1F2F).withValues(alpha: 0.6)
@@ -626,7 +684,7 @@ class _NetworkStatCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center, // Centered content
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -644,12 +702,13 @@ class _NetworkStatCard extends StatelessWidget {
                     color: isDark ? Colors.tealAccent : Colors.teal.shade700,
                     fontSize: 12,
                     height: 1.2,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6), // Small gap
           Text(
             value,
             style: TextStyle(
@@ -669,16 +728,20 @@ class _FeatureItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
+  final bool isLast;
+
   const _FeatureItem({
     required this.isDark,
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.isLast = false,
   });
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: EdgeInsets.only(bottom: isLast ? 0 : 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isDark
@@ -709,7 +772,7 @@ class _FeatureItem extends StatelessWidget {
               size: 20,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -719,6 +782,7 @@ class _FeatureItem extends StatelessWidget {
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.blueGrey.shade900,
                     fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -726,7 +790,7 @@ class _FeatureItem extends StatelessWidget {
                   subtitle,
                   style: TextStyle(
                     color: isDark ? Colors.teal.shade300 : Colors.teal.shade700,
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
                 ),
               ],
@@ -738,6 +802,38 @@ class _FeatureItem extends StatelessWidget {
   }
 }
 
+class _GlassContainer extends StatelessWidget {
+  final Widget child;
+  final bool isDark;
+  const _GlassContainer({required this.child, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: isDark
+                ? const Color(0xFF0F2F3F).withValues(alpha: 0.8)
+                : Colors.white.withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isDark
+                  ? Colors.teal.withValues(alpha: 0.3)
+                  : Colors.green.withValues(alpha: 0.2),
+            ),
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+// Data Models
 class _Stats {
   final int totalTransactions;
   final String averageSpeed;
@@ -766,34 +862,4 @@ class _BlockInfo {
     required this.time,
     required this.hash,
   });
-}
-
-class _GlassContainer extends StatelessWidget {
-  final Widget child;
-  final bool isDark;
-  const _GlassContainer({required this.child, required this.isDark});
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: isDark
-                ? const Color(0xFF0F2F3F).withValues(alpha: 0.8)
-                : Colors.white.withValues(alpha: 0.85),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: isDark
-                  ? Colors.teal.withValues(alpha: 0.3)
-                  : Colors.green.withValues(alpha: 0.2),
-            ),
-          ),
-          child: child,
-        ),
-      ),
-    );
-  }
 }
