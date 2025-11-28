@@ -12,6 +12,19 @@ app.use(bodyParser.json());
 const { Pool } = require('pg');
 const pool = process.env.DATABASE_URL ? new Pool({ connectionString: process.env.DATABASE_URL }) : new Pool();
 
+// Helper: fetch persisted events and tx_meta for a given tx id (used for logging)
+async function fetchSavedRecordsForTx(txId) {
+  if (!txId) return { events: [], tx_meta: null };
+  try {
+    const ev = await pool.query('SELECT * FROM events WHERE tx_id=$1 ORDER BY created_at ASC', [txId]);
+    const meta = await pool.query('SELECT * FROM tx_meta WHERE tx_id=$1 LIMIT 1', [txId]);
+    return { events: ev.rows || [], tx_meta: (meta.rows && meta.rows[0]) ? meta.rows[0] : null };
+  } catch (e) {
+    console.warn('Failed to fetch saved records for tx', txId, e.message || e);
+    return { events: [], tx_meta: null };
+  }
+}
+
 function manilaTimestampIso() {
   const s = new Date().toLocaleString('sv', { timeZone: 'Asia/Manila' });
   return s.replace(' ', 'T') + '+08:00';
@@ -106,6 +119,13 @@ app.post('/', requireApiKey, async (req, res) => {
               [txToStore, JSON.stringify(location), createdAt]
             );
           }
+          // Log what is stored for this tx (events may arrive shortly via the event listener)
+          try {
+            const stored = await fetchSavedRecordsForTx(txToStore);
+            console.log('After submit at root: stored records for tx', txToStore, stored);
+          } catch (e) {
+            console.warn('Failed to log stored records after root submit', e.message || e);
+          }
         } catch (e) {
           console.warn('Failed to persist tx_meta', e.message || e);
         }
@@ -193,6 +213,13 @@ app.post('/tx/create', requireApiKey, async (req, res) => {
             'INSERT INTO tx_meta(tx_id, location, created_at) VALUES($1, $2, $3) ON CONFLICT (tx_id) DO UPDATE SET location = EXCLUDED.location, created_at = EXCLUDED.created_at',
             [txToStore, JSON.stringify(location), createdAt]
           );
+        }
+        // Log what is stored for this transaction. Note: chaincode events may be written by the listener shortly after commit.
+        try {
+          const stored = await fetchSavedRecordsForTx(txToStore);
+          console.log('After createTransaction: stored records for tx', txToStore, stored);
+        } catch (e) {
+          console.warn('Failed to log stored records after createTransaction', e.message || e);
         }
       } catch (e) {
         console.warn('Failed to persist tx_meta', e.message || e);

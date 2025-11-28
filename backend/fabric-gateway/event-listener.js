@@ -32,6 +32,20 @@ async function persistEventToDb(eventName, payload, txId, blockNumber, blockHash
                  VALUES($1, $2, $3, $4, $5, $6)
                  ON CONFLICT (tx_id) DO NOTHING`;
     await pool.query(sql, [eventName, payload, txId, blockNumber, blockHash, createdAt]);
+    // Attempt to fetch the stored row for logging (if txId available)
+    if (txId) {
+      try {
+        const r = await pool.query('SELECT * FROM events WHERE tx_id=$1 LIMIT 1', [txId]);
+        if (r && r.rows && r.rows.length) {
+          console.log('Persisted event to DB:', r.rows[0]);
+          return;
+        }
+      } catch (e) {
+        console.warn('Could not fetch persisted event for logging', e.message || e);
+      }
+    }
+    // Fallback log when txId not present or select failed
+    console.log('Persisted event to DB (no tx id available or not found):', { event_name: eventName, payload, tx_id: txId, block_number: blockNumber, block_hash: blockHash, created_at: createdAt });
   } catch (e) {
     console.error('Failed to write event to DB', e);
     useDb = false;
@@ -54,7 +68,9 @@ function persistEventToFile(eventName, payload, txId, blockNumber, blockHash, cr
         console.error('Failed to write event to file fallback', err);
         return reject(err);
       }
-      return resolve();
+        // Log the row we saved to the fallback file so it's visible in terminal
+        console.log('Persisted event to file fallback:', row);
+        return resolve();
     });
   });
 }
