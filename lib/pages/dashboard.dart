@@ -5,6 +5,7 @@ import 'package:unitap/models.dart';
 import 'package:unitap/pages/transaction_flow.dart';
 import 'package:unitap/pages/eco_rewards.dart';
 import 'package:unitap/pages/network_security.dart';
+import 'package:unitap/pages/transaction_history.dart';
 
 class Dashboard extends StatefulWidget {
   final User user;
@@ -618,7 +619,18 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           title: 'History',
           subtitle: 'All Transactions',
           isDark: widget.isDarkMode,
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TransactionHistory(
+                  transactions: widget.recentTransactions,
+                  isDarkMode: widget.isDarkMode,
+                  onBack: () => Navigator.pop(context),
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
