@@ -75,6 +75,18 @@ if uname | grep -i mingw > /dev/null 2>&1; then
   fi
 fi
 
-createAnchorPeerUpdate 
+# Remove any stale config update artifacts to avoid applying an old/invalid update
+rm -f "${TEST_NETWORK_HOME}/channel-artifacts/${CORE_PEER_LOCALMSPID}anchors.tx" \
+  "${TEST_NETWORK_HOME}/channel-artifacts/config_update.pb" \
+  "${TEST_NETWORK_HOME}/channel-artifacts/config_update.json" \
+  "${TEST_NETWORK_HOME}/channel-artifacts/config_update_in_envelope.json" \
+  "${TEST_NETWORK_HOME}/channel-artifacts/original_config.pb" \
+  "${TEST_NETWORK_HOME}/channel-artifacts/modified_config.pb" || true
 
-updateAnchorPeer 
+createAnchorPeerUpdate 
+# Only attempt to apply the anchor peer update if a transaction file was created
+if [ -f "${TEST_NETWORK_HOME}/channel-artifacts/${CORE_PEER_LOCALMSPID}anchors.tx" ] && [ -s "${TEST_NETWORK_HOME}/channel-artifacts/${CORE_PEER_LOCALMSPID}anchors.tx" ]; then
+  updateAnchorPeer
+else
+  infoln "No channel config changes detected for ${CORE_PEER_LOCALMSPID}; skipping anchor peer update"
+fi
