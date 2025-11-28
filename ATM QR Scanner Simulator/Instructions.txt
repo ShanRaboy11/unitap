@@ -1,1 +1,11 @@
+This application requires Visual Studio 2022 software with the following NuGet Packages:
+Aforge.Video, 
+Aforge.Video.DirectShow, 
+Newtonsoft.Json, 
+Postgrest.Client, 
+Supabase, 
+ZXing.Net, 
+ZXing.Net.Bindings.Windows.Compatability
 
+For the blockhain logic, the program  utilized an REST API endpoint which is done separately, located in a different branch 
+as this task was assigned by a team member in his machine/device.
