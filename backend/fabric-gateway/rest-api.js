@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const connectToFabric = require('./connect');
 require('dotenv').config();
 const cors = require('cors');
+const { randomUUID } = require('crypto');
 
 const app = express();
 app.use(cors());
@@ -66,6 +67,17 @@ function pickField(body, ...candidates) {
   return undefined;
 }
 
+// Normalize or generate a tx id. Treat an all-zero GUID or empty values as missing and generate a new one.
+function normalizeTxId(incoming) {
+  // If no incoming tx id, leave empty so chaincode may generate one
+  if (!incoming) return '';
+  const s = String(incoming).trim();
+  if (!s) return '';
+  // common all-zero GUID used in tests -> remove the field (send empty) to avoid duplicate collisions
+  if (s === '00000000-0000-0000-0000-000000000000') return '';
+  return s;
+}
+
 app.get('/health', requireApiKey, async (req, res) => {
   try {
     // try to ensure connection
@@ -103,8 +115,10 @@ app.post('/', requireApiKey, async (req, res) => {
     // If the payload contains transaction-like fields, attempt to create a transaction
     if (txId || userId || amount) {
       if (!userId) return res.status(400).json({ error: 'userId is required' });
-      const { contract } = await ensureConnected();
-      let args = [txId || '', userId, recipientId || '', amount === undefined || amount === null ? '0' : amount, currencyCode || 'PHP', feeAmount === undefined || feeAmount === null ? '0' : feeAmount, type || 'transfer', description || '', ecoPoints === undefined || ecoPoints === null ? '0' : ecoPoints];
+        const { contract } = await ensureConnected();
+        const normalizedTxId = normalizeTxId(txId);
+        if (normalizedTxId !== txId) console.log('Normalized txId:', txId, '->', normalizedTxId);
+        let args = [normalizedTxId, userId, recipientId || '', amount === undefined || amount === null ? '0' : amount, currencyCode || 'PHP', feeAmount === undefined || feeAmount === null ? '0' : feeAmount, type || 'transfer', description || '', ecoPoints === undefined || ecoPoints === null ? '0' : ecoPoints];
       args = args.map(a => (a === undefined || a === null) ? '' : String(a));
       try {
         const response = await contract.submitTransaction('createTransaction', ...args);
@@ -132,6 +146,9 @@ app.post('/', requireApiKey, async (req, res) => {
         return res.json(respObj);
       } catch (err) {
         console.error('root createTransaction error', err, { args });
+        if (err && err.message && /already exists/i.test(err.message)) {
+          return res.status(409).json({ error: 'Transaction already exists', detail: err.message });
+        }
         return res.status(500).json({ error: 'createTransaction failed', detail: err.message });
       }
     }
@@ -198,7 +215,9 @@ app.post('/tx/create', requireApiKey, async (req, res) => {
     const location = pickField(body, 'location', 'Location');
     const { contract } = await ensureConnected();
     // Defensive: coerce all args to strings and replace undefined/null with empty string
-    let args = [txId || '', userId, recipientId || '', amount === undefined || amount === null ? '0' : amount, currencyCode || 'PHP', feeAmount === undefined || feeAmount === null ? '0' : feeAmount, type || 'transfer', description || '', ecoPoints === undefined || ecoPoints === null ? '0' : ecoPoints];
+    const normalizedTxId = normalizeTxId(txId);
+    if (normalizedTxId !== txId) console.log('Normalized txId:', txId, '->', normalizedTxId);
+    let args = [normalizedTxId, userId, recipientId || '', amount === undefined || amount === null ? '0' : amount, currencyCode || 'PHP', feeAmount === undefined || feeAmount === null ? '0' : feeAmount, type || 'transfer', description || '', ecoPoints === undefined || ecoPoints === null ? '0' : ecoPoints];
     args = args.map(a => (a === undefined || a === null) ? '' : String(a));
     try {
       const response = await contract.submitTransaction('createTransaction', ...args);
@@ -228,6 +247,9 @@ app.post('/tx/create', requireApiKey, async (req, res) => {
       return res.json(respObj);
     } catch (err) {
       console.error('createTransaction error', err, { args });
+      if (err && err.message && /already exists/i.test(err.message)) {
+        return res.status(409).json({ error: 'Transaction already exists', detail: err.message });
+      }
       return res.status(500).json({ error: 'createTransaction failed', detail: err.message });
     }
   } catch (err) {
